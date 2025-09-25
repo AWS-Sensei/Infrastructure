@@ -24,9 +24,91 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:*
+                  - codebuild:*
                   - cloudformation:*
+                  - iam:PassRole
                   - secretsmanager:GetSecretValue
                 Resource: "*"   
+         
+  # IAM Role for CodeBuild              
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Includes basic logs and network permissions
+        - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
+      Policies:
+        - PolicyName: CodeBuildS3Access
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                Resource: "*" 
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+                  
+  CloudFormationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFormationExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Allow SAM macro (Serverless transform)
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:GetTemplateSummary
+                Resource: "*"
+              # Allow creating/managing the resources
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - iam:*
+                  - lambda:*
+                  - apigateway:*
+                  - dynamodb:*
+                Resource: "*"
+                    
+  HugoBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: HugoBuild
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        Type: LINUX_CONTAINER
+      Source:
+        Type: CODEPIPELINE                  
                   
   MyPipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -51,13 +133,42 @@ Resources:
                 Repo: Blog
                 Branch: main
                 OAuthToken: !Sub "{{resolve:secretsmanager:GitHub-Connection:SecretString:token}}"
-        - Name: ManualApproval
+                
+        - Name: InfraDeploy
           Actions:
-            - Name: WaitForApproval
+            - Name: SAM_Deploy
               ActionTypeId:
-                Category: Approval
+                Category: Deploy
                 Owner: AWS
-                Provider: Manual
+                Provider: CloudFormation
                 Version: '1'
-              RunOrder: 1
-        
+              InputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: AWS-Sensei-Blog
+                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+                TemplatePath: SourceOutput::infrastructure.yaml
+                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
+              Namespace: AWSSenseiBlogVariables
+                
+        - Name: BuildDeployHugo
+          Actions:
+            - Name: Hugo_Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ProjectName: !Ref HugoBuildProject
+                EnvironmentVariables: |
+                  [
+                    {
+                      "name": "WEBSITE_BUCKET",
+                      "value": "#{AWSSenseiBlogVariables.WebsiteBucketName}",
+                      "type": "PLAINTEXT"
+                    }
+                  ]        
