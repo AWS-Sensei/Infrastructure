@@ -55,6 +55,8 @@ Resources:
                   - s3:GetObjectVersion
                   - s3:PutObject
                   - s3:PutObjectAcl
+                  - s3:ListBucket
+                  - s3:DeleteObject 
                 Resource: "*" 
               - Effect: Allow
                 Action:
@@ -93,7 +95,9 @@ Resources:
                   - iam:*
                   - lambda:*
                   - apigateway:*
+                  - cloudfront:*
                   - dynamodb:*
+                  - route53:*
                 Resource: "*"
                     
   HugoBuildProject:
