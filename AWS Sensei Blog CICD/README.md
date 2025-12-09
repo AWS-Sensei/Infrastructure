@@ -54,7 +54,7 @@ sam deploy
 ### **master.yaml**
 
 The orchestration file.\
-Includes all nested templates.
+Includes all nested yaml files.
 
 ### **roles.yaml**
 
@@ -86,10 +86,6 @@ Defines pipeline:
 
 # 🔑 Secrets
 
-GitHub token for CodePipeline source action is stored in Secrets Manager:
-
-```
-    {{resolve:secretsmanager:GitHub-Connection:SecretString:token}}
-```
+GitHub token for CodePipeline source action is stored in Secrets Manager.
     
 ------------------------------------------------------------------------
