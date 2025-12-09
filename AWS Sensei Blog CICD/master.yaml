@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Master stack that orchestrates all nested stacks for AWS Sensei Blog CI/CD
+
+Resources:
+
+  # --------------------------
+  # Foundation Layer
+  # --------------------------
+  FoundationRoles:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: foundation/roles.yaml
+
+  FoundationArtifacts:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: foundation/artifacts.yaml
+      
+  # --------------------------
+  # Build Layer
+  # --------------------------
+  HugoBuildProject:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: build/codebuild.yaml
+      Parameters:
+        CodeBuildRoleArn: !GetAtt FoundationRoles.Outputs.CodeBuildRoleArn
+        
+  # --------------------------
+  # Pipeline Layer
+  # --------------------------
+  CICDPipeline:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - BuildProject
+    Properties:
+      TemplateURL: pipeline/template-pipeline.yaml
+      Parameters:
+        CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
+        CloudFormationExecutionRoleArn: !GetAtt FoundationRoles.Outputs.CloudFormationExecutionRoleArn
+        PipelineArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.PipelineArtifactBucketName
+        HugoBuildProjectName: !GetAtt HugoBuildProject.Outputs.HugoBuildProjectName     
+
+

@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: S3 bucket for CodePipeline artifacts
+
+Resources:
+
+  # -----------------------------------------------------
+  # Artifact Bucket for CodePipeline
+  # -----------------------------------------------------
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Purpose
+          Value: CodePipeline-Artifacts
+
+  # Grant S3 Access Logs (optional but recommended)
+  ArtifactBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ArtifactBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # Deny leaving bucket unencrypted
+          - Sid: DenyUnEncryptedUploads
+            Effect: Deny
+            Principal: "*"
+            Action: s3:PutObject
+            Resource: !Sub "${ArtifactBucket.Arn}/*"
+            Condition:
+              StringNotEquals:
+                "s3:x-amz-server-side-encryption": "AES256"
+
+          # AWS recommended: prevent insecure transport
+          - Sid: EnforceTLS
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt ArtifactBucket.Arn
+              - !Sub "${ArtifactBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+
+Outputs:
+
+  ArtifactBucketName:
+    Description: Name of the Artifact Bucket
+    Value: !Ref ArtifactBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-ArtifactBucketName"
+
+  ArtifactBucketArn:
+    Description: ARN of the Artifact Bucket
+    Value: !GetAtt ArtifactBucket.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-ArtifactBucketArn"
