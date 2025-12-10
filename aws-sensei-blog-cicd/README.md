@@ -61,8 +61,6 @@ IAM roles for:
 
 Creates buckets for: 
 - CodePipeline artifacts
-- Hugo website hosting
-- Optionally CloudFront
 
 ### **codebuild.yaml**
 
