@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM roles for CodePipeline, CodeBuild, and CloudFormation execution
+
+Resources:
+
+  # -----------------------------------------------------
+  # CodePipeline Service Role
+  # -----------------------------------------------------
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodePipelinePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - codebuild:*
+                  - cloudformation:*
+                  - iam:PassRole
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
+                  
+  # -----------------------------------------------------
+  # CodeBuild Service Role
+  # -----------------------------------------------------  
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Includes logs + VPC + basic permissions
+        - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
+      Policies:
+        - PolicyName: CodeBuildS3CloudFrontPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # S3 and access for deployment (sync, delete)
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:ListBucket
+                  - s3:DeleteObject 
+                Resource: "*" 
+                  
+              # CloudFront invalidation
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: "*"    
+              
+              # Logs
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+                  
+  # -----------------------------------------------------
+  # CloudFormation Execution Role (for SAM deployments)
+  # -----------------------------------------------------
+  CloudFormationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole 
+      Policies:
+        - PolicyName: CloudFormationFullDeployPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Allow CFN to deploy SAM
+              - Effect: Allow
+                Action:
+                  - cloudformation:*
+                Resource: "*"
+                  
+              # All resources your SAM deployment may create
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - iam:*
+                  - lambda:*
+                  - apigateway:*
+                  - cloudfront:*
+                  - dynamodb:*
+                  - route53:*
+                Resource: "*"
+                  
+# -----------------------------------------------------
+# Outputs for nested stacks
+# -----------------------------------------------------
+Outputs:
+
+  CodePipelineRoleArn:
+    Description: ARN of CodePipeline Role
+    Value: !GetAtt CodePipelineRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CodePipelineRoleArn"
+
+  CodeBuildRoleArn:
+    Description: ARN of CodeBuild Role
+    Value: !GetAtt CodeBuildRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CodeBuildRoleArn"
+
+  CloudFormationExecutionRoleArn:
+    Description: ARN of CloudFormation Execution Role
+    Value: !GetAtt CloudFormationExecutionRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-CloudFormationExecutionRoleArn"
