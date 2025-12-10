@@ -32,19 +32,13 @@ https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/i
 ### 2. Build
 
 ``` bash
-sam build
+sam build -t master.yaml
 ```
 
-### 3. Deploy (guided)
+### 3. Deploy
 
 ``` bash
-sam deploy --guided
-```
-
-After the first deployment, you can deploy silently:
-
-``` bash
-sam deploy
+sam deploy --stack-name AWS-Sensei-Blog-CICD --resolve-s3 --capabilities CAPABILITY_NAMED_IAM
 ```
 
 ------------------------------------------------------------------------
