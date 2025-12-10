@@ -5,9 +5,6 @@ Parameters:
   CodeBuildRoleArn:
     Type: String
     Description: ARN of the IAM Role used by CodeBuild
-  ArtifactBucketName:
-    Type: String
-    Description: Artifact bucket name used by CodePipeline (not required by CodeBuild but good for future extension)
 
 Resources:
   
@@ -15,7 +12,7 @@ Resources:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: HugoBuild
-      ServiceRole: !Ref  CodeBuildRole.Arn
+      ServiceRole: !Ref CodeBuildRoleArn
       Artifacts:
         Type: CODEPIPELINE
       Environment:
@@ -33,7 +30,3 @@ Outputs:
   HugoBuildProjectName:
     Description: Name of the CodeBuild project
     Value: !Ref HugoBuildProject
-
-  HugoBuildProjectArn:
-    Description: ARN of the CodeBuild project
-    Value: !GetAtt HugoBuildProject.Arn

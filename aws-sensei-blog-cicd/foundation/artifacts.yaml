@@ -12,7 +12,8 @@ Resources:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: alias/aws/s3
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -40,7 +41,7 @@ Resources:
             Resource: !Sub "${ArtifactBucket.Arn}/*"
             Condition:
               StringNotEquals:
-                "s3:x-amz-server-side-encryption": "AES256"
+                "s3:x-amz-server-side-encryption": "aws:kms"
 
           # AWS recommended: prevent insecure transport
           - Sid: EnforceTLS
@@ -62,9 +63,3 @@ Outputs:
     Value: !Ref ArtifactBucket
     Export:
       Name: !Sub "${AWS::StackName}-ArtifactBucketName"
-
-  ArtifactBucketArn:
-    Description: ARN of the Artifact Bucket
-    Value: !GetAtt ArtifactBucket.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-ArtifactBucketArn"

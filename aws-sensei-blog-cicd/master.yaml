@@ -32,13 +32,11 @@ Resources:
   CICDPipeline:
     Type: AWS::CloudFormation::Stack
     DependsOn:
-      - BuildProject
+      - HugoBuildProject
     Properties:
-      TemplateURL: pipeline/template-pipeline.yaml
+      TemplateURL: pipeline/pipeline.yaml
       Parameters:
         CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
         CloudFormationExecutionRoleArn: !GetAtt FoundationRoles.Outputs.CloudFormationExecutionRoleArn
-        PipelineArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.PipelineArtifactBucketName
+        ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
         HugoBuildProjectName: !GetAtt HugoBuildProject.Outputs.HugoBuildProjectName     
-
-

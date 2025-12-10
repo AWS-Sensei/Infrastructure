@@ -9,7 +9,6 @@ Resources:
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${AWS::StackName}-CodePipelineRole"
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -17,7 +16,6 @@ Resources:
             Principal:
               Service: codepipeline.amazonaws.com
             Action: sts:AssumeRole
-              
       Policies:
         - PolicyName: CodePipelinePolicy
           PolicyDocument:
@@ -38,7 +36,6 @@ Resources:
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${AWS::StackName}-CodeBuildRole"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -49,7 +46,6 @@ Resources:
       ManagedPolicyArns:
         # Includes logs + VPC + basic permissions
         - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
-        - 
       Policies:
         - PolicyName: CodeBuildS3CloudFrontPolicy
           PolicyDocument:
@@ -86,15 +82,13 @@ Resources:
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${AWS::StackName}-CloudFormationExecutionRole"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
               Service: cloudformation.amazonaws.com
-            Action: sts:AssumeRole
-              
+            Action: sts:AssumeRole 
       Policies:
         - PolicyName: CloudFormationFullDeployPolicy
           PolicyDocument:

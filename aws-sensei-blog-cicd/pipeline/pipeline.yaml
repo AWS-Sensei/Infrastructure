@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS-Sensei Pipeline (Source → InfraDeploy → BuildDeployHugo)
 
 Parameters:
-  ArtifactBucket:
+  ArtifactBucketName:
     Type: String
     Description: S3 bucket used for CodePipeline artifacts
 
@@ -39,7 +39,10 @@ Resources:
       RoleArn: !Ref CodePipelineRoleArn
       ArtifactStore:
         Type: S3
-        Location: !Ref ArtifactBucket
+        Location: !Ref ArtifactBucketName
+        EncryptionKey:
+          Type: KMS
+          Id: alias/aws/s3
       Stages:
         # ----------------------------------------------------------
         # SOURCE STAGE
@@ -107,9 +110,3 @@ Resources:
                       "type": "PLAINTEXT"
                     }
                   ]
-                  
-Outputs:
-  PipelineName:
-    Value: !Ref AWSSenseiBlogPipeline
-  PipelineArn:
-    Value: !GetAtt AWSSenseiBlogPipeline.Arn
