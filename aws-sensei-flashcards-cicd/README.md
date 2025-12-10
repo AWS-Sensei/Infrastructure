@@ -1,19 +1,17 @@
 # 📦 Modular SAM + CodePipeline Project
 
-This repository/folder contains a **modular, multi-file AWS SAM project** for the AWS Sensei Blog CI/CD Infrastructure.\
+This repository/folder contains a **modular, multi-file AWS SAM project** for the AWS Sensei Flashcard App CI/CD Infrastructure.\
 Infrastructure is split into multiple CloudFormation templates that are combined through a single `master.yaml`.\
-This CodePipeline deploys for the AWS Sensei Blog the **SAM infrastructure** and the **Hugo static website** automatically.
+This CodePipeline deploys for the AWS Sensei Flashcard App the **SAM infrastructure** automatically.
 
 ------------------------------------------------------------------------
 
 ## 📁 Project Structure
 
     .
-    ├── build                     
-    │   └── codebuild.yaml          # CodeBuild project for Hugo site
     ├── foundation                     
     │   ├── artifacts.yaml          # S3 buckets and artifact storage
-    │   └── roles.yaml              # IAM Roles (CodePipeline, CodeBuild, CloudFormation)
+    │   └── roles.yaml              # IAM Roles (CodePipeline, CloudFormation)
     ├── build                     
     │   └── pipeline.yaml           # CodePipeline definition
     ├── master.yaml                 # Main SAM/CloudFormation entrypoint
@@ -38,7 +36,7 @@ sam build -t master.yaml
 ### 3. Deploy
 
 ``` bash
-sam deploy --stack-name AWS-Sensei-Blog-CICD --resolve-s3 --capabilities CAPABILITY_NAMED_IAM
+sam deploy --stack-name AWS-Sensei-Flashcard-App-CICD --resolve-s3 --capabilities CAPABILITY_NAMED_IAM
 ```
 
 ------------------------------------------------------------------------
@@ -54,18 +52,12 @@ Includes all nested yaml files.
 
 IAM roles for: 
 - CodePipeline
-- CodeBuild
 - CloudFormation
 
 ### **artifacts.yaml**
 
 Creates buckets for: 
 - CodePipeline artifacts
-
-### **codebuild.yaml**
-
-CodeBuild project for: 
-- Hugo build
 
 ### **pipeline.yaml**
 
