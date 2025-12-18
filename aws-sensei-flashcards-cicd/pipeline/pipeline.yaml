@@ -132,12 +132,12 @@ Resources:
                   [
                     {
                       "name": "WEBSITE_BUCKET",
-                      "value": "#{AWSSenseiFlashcardAppVariables.FlashcardWebAppBucketName}",
+                      "value": "#{AWSSenseiFlashcardAppVariables.WebsiteBucketName}",
                       "type": "PLAINTEXT"
                     },
                     {
                       "name": "CLOUDFRONT_DISTRIBUTION_ID",
-                      "value": "#{AWSSenseiFlashcardAppVariables.FlashcardWebAppCloudFrontDistribution}",
+                      "value": "#{AWSSenseiFlashcardAppVariables.CloudFrontDistribution}",
                       "type": "PLAINTEXT"
                     }
                   ]
