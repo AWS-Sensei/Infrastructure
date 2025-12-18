@@ -17,6 +17,16 @@ Resources:
       TemplateURL: foundation/artifacts.yaml
       
   # --------------------------
+  # Build Layer
+  # --------------------------
+  PackageBuildProject:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: build/codebuild.yaml
+      Parameters:
+        CodeBuildRoleArn: !GetAtt FoundationRoles.Outputs.CodeBuildRoleArn
+      
+  # --------------------------
   # Pipeline Layer
   # --------------------------
   CICDPipeline:
@@ -27,3 +37,5 @@ Resources:
         CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
         CloudFormationExecutionRoleArn: !GetAtt FoundationRoles.Outputs.CloudFormationExecutionRoleArn
         ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
+        PackageBuildProjectName: !GetAtt PackageBuildProject.Outputs.PackageBuildProjectName
+        WebAppBuildProjectName: !GetAtt PackageBuildProject.Outputs.WebAppBuildProjectName

@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CodeBuild project for building the AWS Sensei Flashcard Backend
+
+Parameters:
+  CodeBuildRoleArn:
+    Type: String
+    Description: ARN of the IAM Role used by CodeBuild
+
+Resources:
+
+  PackageBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: flashcards-package-template
+      ServiceRole: !Ref CodeBuildRoleArn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        Type: LINUX_CONTAINER
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+  
+          phases:
+            install:
+              commands:
+                - echo "Installing AWS CLI (already included)..."
+            build:
+              commands:
+                - echo "Packaging SAM template..."
+                - aws cloudformation package --template-file infrastructure.yaml --s3-bucket $ARTIFACT_BUCKET --output-template-file packaged.yaml --kms-key-id alias/aws/s3
+  
+          artifacts:
+            files:
+              - packaged.yaml
+      TimeoutInMinutes: 20
+      
+  WebAppBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: flashcards-webapp
+      ServiceRole: !Ref CodeBuildRoleArn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: BUILD_ENV
+            Value: production
+      Source:
+        Type: CODEPIPELINE  
+      TimeoutInMinutes: 20  
+    
+Outputs:
+  PackageBuildProjectName:
+    Description: Name of the Lambda CodeBuild project
+    Value: !Ref PackageBuildProject
+  WebAppBuildProjectName:
+    Description: Name of the Web App CodeBuild project
+    Value: !Ref WebAppBuildProject

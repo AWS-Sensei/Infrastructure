@@ -13,6 +13,14 @@ Parameters:
   CloudFormationExecutionRoleArn:
     Type: String
     Description: IAM role ARN used by CloudFormation during SAM deploy
+    
+  PackageBuildProjectName:
+    Type: String
+    Description: CodeBuild project name for Cloudformation Package build
+    
+  WebAppBuildProjectName:
+    Type: String
+    Description: CodeBuild project name for Web App build
 
   GitHubOwner:
     Type: String
@@ -59,6 +67,31 @@ Resources:
                 Branch: !Ref GitHubBranch
                 OAuthToken: "{{resolve:secretsmanager:GitHub-Connection:SecretString:token}}"
         # ----------------------------------------------------------
+        # HUGO BUILD & DEPLOY
+        # ----------------------------------------------------------
+        - Name: Build
+          Actions:
+            - Name: PackageTemplate
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                ProjectName: !Ref PackageBuildProjectName
+                EnvironmentVariables: !Sub |
+                  [
+                    {
+                      "name": "ARTIFACT_BUCKET",
+                      "value": "${ArtifactBucketName}",
+                      "type": "PLAINTEXT"
+                    }
+                  ]
+        # ----------------------------------------------------------
         # INFRASTRUCTURE DEPLOY (SAM)
         # ----------------------------------------------------------
         - Name: InfraDeploy
@@ -70,11 +103,42 @@ Resources:
                 Provider: CloudFormation
                 Version: "1"
               InputArtifacts:
-                - Name: SourceOutput
+                - Name: BuildOutput
+              OutputArtifacts:
+                - Name: InfraOutput
               Configuration:
                 ActionMode: CREATE_UPDATE
                 StackName: AWS-Sensei-Flashcard-App
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
-                TemplatePath: SourceOutput::infrastructure.yaml
+                TemplatePath: BuildOutput::packaged.yaml
                 RoleArn: !Ref CloudFormationExecutionRoleArn
               Namespace: AWSSenseiFlashcardAppVariables
+        # ----------------------------------------------------------
+        # HUGO BUILD & DEPLOY
+        # ----------------------------------------------------------
+        - Name: BuildDeployWebApp
+          Actions:
+            - Name: WebApp_Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              InputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ProjectName: !Ref WebAppBuildProjectName
+                EnvironmentVariables: |
+                  [
+                    {
+                      "name": "WEBSITE_BUCKET",
+                      "value": "#{AWSSenseiFlashcardAppVariables.FlashcardWebAppWebsiteBucketName}",
+                      "type": "PLAINTEXT"
+                    },
+                    {
+                      "name": "CLOUDFRONT_DISTRIBUTION_ID",
+                      "value": "#{AWSSenseiFlashcardAppVariables.FlashcardWebAppCloudFrontDistribution}",
+                      "type": "PLAINTEXT"
+                    }
+                  ]
+                
