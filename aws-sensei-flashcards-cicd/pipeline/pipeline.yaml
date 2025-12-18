@@ -139,5 +139,15 @@ Resources:
                       "name": "CLOUDFRONT_DISTRIBUTION_ID",
                       "value": "#{AWSSenseiFlashcardAppVariables.CloudFrontDistribution}",
                       "type": "PLAINTEXT"
+                    },
+                    {
+                      "name": "COGNITO_CLIENT_ID",
+                      "value": "#{AWSSenseiFlashcardAppVariables.CognitoUserPoolClientId}",
+                      "type": "PLAINTEXT"
+                    },
+                    {
+                      "name": "COGNITO_REGION",
+                      "value": "#{AWSSenseiFlashcardAppVariables.CognitoUserPoolAWSRegion}",
+                      "type": "PLAINTEXT"
                     }
                   ]
