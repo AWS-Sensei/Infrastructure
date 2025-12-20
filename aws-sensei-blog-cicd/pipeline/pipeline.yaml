@@ -52,16 +52,16 @@ Resources:
             - Name: GitHub_Source
               ActionTypeId:
                 Category: Source
-                Owner: ThirdParty
-                Provider: GitHub
+                Owner: AWS
+                Provider: CodeStarSourceConnection
                 Version: "1"
               OutputArtifacts:
                 - Name: SourceOutput
               Configuration:
-                Owner: !Ref GitHubOwner
-                Repo: !Ref GitHubRepo
-                Branch: !Ref GitHubBranch
-                OAuthToken: "{{resolve:secretsmanager:GitHub-Connection:SecretString:token}}"
+                ConnectionArn: "arn:aws:codeconnections:eu-central-1:804711834430:connection/fb8bbf59-fe32-4dd1-8a5b-a1d2642a5fb9"
+                FullRepositoryId: !Sub "${GitHubOwner}/${GitHubRepo}"
+                BranchName: !Ref GitHubBranch
+                DetectChanges: true
         # ----------------------------------------------------------
         # INFRASTRUCTURE DEPLOY (SAM)
         # ----------------------------------------------------------

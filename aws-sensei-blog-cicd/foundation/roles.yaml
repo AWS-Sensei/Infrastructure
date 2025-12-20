@@ -27,8 +27,12 @@ Resources:
                   - codebuild:*
                   - cloudformation:*
                   - iam:PassRole
-                  - secretsmanager:GetSecretValue
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - codeconnections:UseConnection
+                  - codestar-connections:UseConnection
+                Resource: "arn:aws:codeconnections:eu-central-1:804711834430:connection/fb8bbf59-fe32-4dd1-8a5b-a1d2642a5fb9"
                   
   # -----------------------------------------------------
   # CodeBuild Service Role
