@@ -141,6 +141,11 @@ Resources:
                       "type": "PLAINTEXT"
                     },
                     {
+                      "name": "COGNITO_USER_POOL_ID",
+                      "value": "#{AWSSenseiFlashcardAppVariables.CognitoUserPoolId}",
+                      "type": "PLAINTEXT"
+                    },
+                    {
                       "name": "COGNITO_CLIENT_ID",
                       "value": "#{AWSSenseiFlashcardAppVariables.CognitoUserPoolClientId}",
                       "type": "PLAINTEXT"
@@ -148,6 +153,16 @@ Resources:
                     {
                       "name": "COGNITO_REGION",
                       "value": "#{AWSSenseiFlashcardAppVariables.CognitoUserPoolAWSRegion}",
+                      "type": "PLAINTEXT"
+                    },
+                    {
+                      "name": "FLASHCARDS_API_ENDPOINT",
+                      "value": "#{AWSSenseiFlashcardAppVariables.FlashcardsApiEndpoint}",
+                      "type": "PLAINTEXT"
+                    },
+                    {
+                      "name": "FLASHCARDS_API_REGION",
+                      "value": "#{AWSSenseiFlashcardAppVariables.FlashcardsApiRegion}",
                       "type": "PLAINTEXT"
                     }
                   ]
