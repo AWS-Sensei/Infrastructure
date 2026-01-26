@@ -14,20 +14,20 @@ This CodePipeline deploys for the AWS Sensei Blog the **SAM infrastructure** and
     ├── foundation                     
     │   ├── artifacts.yaml          # S3 buckets and artifact storage
     │   └── roles.yaml              # IAM Roles (CodePipeline, CodeBuild, CloudFormation)
-    ├── build                     
+    ├── pipeline                     
     │   └── pipeline.yaml           # CodePipeline definition
     ├── master.yaml                 # Main SAM/CloudFormation entrypoint
     └── README.md                   # You're reading this    
 
 ------------------------------------------------------------------------
 
-# 🚀 Deployment
+## 🚀 Deployment
 
 ## Deploy with SAM CLI
 
 ### 1. Install SAM CLI
 
-https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html
+[AWS SAM CLI Installation Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 
 ### 2. Build
 
@@ -43,7 +43,7 @@ sam deploy --stack-name AWS-Sensei-Blog-CICD --resolve-s3 --capabilities CAPABIL
 
 ------------------------------------------------------------------------
 
-# 📚 What Each Template Does
+## 📚 What Each Template Does
 
 ### **master.yaml**
 
@@ -52,32 +52,36 @@ Includes all nested yaml files.
 
 ### **roles.yaml**
 
-IAM roles for: 
+IAM roles for
+
 - CodePipeline
 - CodeBuild
 - CloudFormation
 
 ### **artifacts.yaml**
 
-Creates buckets for: 
+Creates buckets for
+
 - CodePipeline artifacts
 
 ### **codebuild.yaml**
 
-CodeBuild project for: 
+CodeBuild project for
+
 - Hugo build
 
 ### **pipeline.yaml**
 
-Defines pipeline: 
+Defines pipeline
+
 1. GitHub source
 2. InfraDeploy via SAM/CloudFormation
 3. Hugo build + deploy
 
 ------------------------------------------------------------------------
 
-# 🔑 Secrets
+## 🔑 Secrets
 
 GitHub token for CodePipeline source action is stored in Secrets Manager.
-    
+
 ------------------------------------------------------------------------
