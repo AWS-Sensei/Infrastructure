@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: AWS-Sensei Pipeline (Source → InfraDeploy → BuildDeployHugo)
+Description: AWS-Sensei Pipeline (Source → Lambda Package → InfraDeploy → BuildDeployFlutterWebApp)
 
 Parameters:
   ArtifactBucketName:
@@ -67,7 +67,7 @@ Resources:
                 BranchName: !Ref GitHubBranch
                 DetectChanges: true
         # ----------------------------------------------------------
-        # HUGO BUILD & DEPLOY
+        # LAMBDA PACKAGE
         # ----------------------------------------------------------
         - Name: Build
           Actions:
@@ -114,7 +114,7 @@ Resources:
                 RoleArn: !Ref CloudFormationExecutionRoleArn
               Namespace: AWSSenseiFlashcardAppVariables
         # ----------------------------------------------------------
-        # HUGO BUILD & DEPLOY
+        # FLUTTER WEB APP BUILD & DEPLOY
         # ----------------------------------------------------------
         - Name: BuildDeployWebApp
           Actions:
