@@ -112,9 +112,9 @@ Resources:
                   - lambda:*
                   - apigateway:*
                   - cloudfront:*
-                  - dynamodb:*
                   - route53:*
-                  - cognito-idp:*
+                  - secretsmanager:*
+                  
                 Resource: "*"
                   
 # -----------------------------------------------------

@@ -11,7 +11,7 @@ Resources:
   PackageBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: flashcards-package-template
+      Name: spotify-package-template
       ServiceRole: !Ref CodeBuildRoleArn
       Artifacts:
         Type: CODEPIPELINE
@@ -28,6 +28,8 @@ Resources:
             install:
               commands:
                 - echo "Installing AWS CLI (already included)..."
+                - python -m pip install --upgrade pip
+                - python -m pip install -r src/requirements.txt -t src
             build:
               commands:
                 - echo "Packaging SAM template..."
