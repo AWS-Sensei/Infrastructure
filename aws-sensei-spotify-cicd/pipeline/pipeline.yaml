@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS-Sensei Spotify Pipeline (Source → Lambda Package → InfraDeploy)
+
+Parameters:
+  ArtifactBucketName:
+    Type: String
+    Description: S3 bucket used for CodePipeline artifacts
+
+  CodePipelineRoleArn:
+    Type: String
+    Description: IAM role ARN for CodePipeline
+
+  CloudFormationExecutionRoleArn:
+    Type: String
+    Description: IAM role ARN used by CloudFormation during SAM deploy
+    
+  PackageBuildProjectName:
+    Type: String
+    Description: CodeBuild project name for Cloudformation Package build
+
+  GitHubOwner:
+    Type: String
+    Default: AWS-Sensei
+
+  GitHubRepo:
+    Type: String
+    Default: Spotify
+
+  GitHubBranch:
+    Type: String
+    Default: main
+
+
+Resources:
+    
+  AWSSenseiSpotifyPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !Ref CodePipelineRoleArn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucketName
+        EncryptionKey:
+          Type: KMS
+          Id: alias/aws/s3
+      Stages:
+        # ----------------------------------------------------------
+        # SOURCE STAGE
+        # ----------------------------------------------------------
+        - Name: Source
+          Actions:
+            - Name: GitHub_Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: "1"
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ConnectionArn: "arn:aws:codeconnections:eu-central-1:804711834430:connection/fb8bbf59-fe32-4dd1-8a5b-a1d2642a5fb9"
+                FullRepositoryId: !Sub "${GitHubOwner}/${GitHubRepo}"
+                BranchName: !Ref GitHubBranch
+                DetectChanges: true
+        # ----------------------------------------------------------
+        # LAMBDA PACKAGE
+        # ----------------------------------------------------------
+        - Name: Build
+          Actions:
+            - Name: PackageTemplate
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                ProjectName: !Ref PackageBuildProjectName
+                EnvironmentVariables: !Sub |
+                  [
+                    {
+                      "name": "ARTIFACT_BUCKET",
+                      "value": "${ArtifactBucketName}",
+                      "type": "PLAINTEXT"
+                    }
+                  ]
+        # ----------------------------------------------------------
+        # INFRASTRUCTURE DEPLOY (SAM)
+        # ----------------------------------------------------------
+        - Name: InfraDeploy
+          Actions:
+            - Name: SAM_Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              InputArtifacts:
+                - Name: BuildOutput
+              OutputArtifacts:
+                - Name: InfraOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: AWS-Sensei-Spotify
+                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+                TemplatePath: BuildOutput::packaged.yaml
+                RoleArn: !Ref CloudFormationExecutionRoleArn
+              Namespace: AWSSenseiSpotifyVariables
