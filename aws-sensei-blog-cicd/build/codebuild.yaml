@@ -22,10 +22,10 @@ Resources:
         EnvironmentVariables:
           - Name: WEBSITE_BUCKET
             Type: PARAMETER_STORE
-            Value: /aws-sensei/blog/bucket-name
+            Value: /sensei/blog/bucket-name
           - Name: CLOUDFRONT_DISTRIBUTION_ID
             Type: PARAMETER_STORE
-            Value: /aws-sensei/blog/cloudfront-distribution-id
+            Value: /sensei/blog/cloudfront-distribution-id
       Source:
         Type: CODEPIPELINE
         BuildSpec: frontend/buildspec.yml

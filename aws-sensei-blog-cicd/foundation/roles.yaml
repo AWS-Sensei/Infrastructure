@@ -77,7 +77,7 @@ Resources:
                 Action:
                   - ssm:GetParameter
                   - ssm:GetParameters
-                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/aws-sensei/blog/*"
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sensei/blog/*"
               
               # Logs
               - Effect: Allow
@@ -121,6 +121,7 @@ Resources:
                   - cloudfront:*
                   - dynamodb:*
                   - route53:*
+                  - ssm:*
                 Resource: "*"
                   
 # -----------------------------------------------------
