@@ -23,7 +23,8 @@ Resources:
           - Name: BUILD_ENV
             Value: production
       Source:
-        Type: CODEPIPELINE  
+        Type: CODEPIPELINE
+        BuildSpec: frontend/buildspec.yml
       TimeoutInMinutes: 20  
               
 Outputs:

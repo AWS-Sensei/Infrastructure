@@ -97,7 +97,6 @@ Resources:
                 - Name: SourceOutput
               Configuration:
                 ProjectName: !Ref HugoBuildProjectName
-                BuildspecOverride: frontend/buildspec.yml
                 EnvironmentVariables: |
                   [
                     {
