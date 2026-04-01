@@ -43,6 +43,7 @@ Resources:
       Triggers:
         - ProviderType: CodeStarSourceConnection
           GitConfiguration:
+            SourceActionName: GitHub_Source
             Push:
               - FilePaths:
                   Includes:
