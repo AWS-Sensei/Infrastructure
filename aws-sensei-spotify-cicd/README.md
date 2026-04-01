@@ -8,6 +8,7 @@ This CodePipeline deploys for the AWS Sensei Spotify Backend the **SAM infrastru
 
 ## 📁 Project Structure
 
+```text
     .
     ├── build                     
     │   └── codebuild.yaml          # CodeBuild project for Lambda
@@ -18,6 +19,7 @@ This CodePipeline deploys for the AWS Sensei Spotify Backend the **SAM infrastru
     │   └── pipeline.yaml           # CodePipeline definition
     ├── master.yaml                 # Main SAM/CloudFormation entrypoint
     └── README.md                   # You're reading this    
+```
 
 ------------------------------------------------------------------------
 

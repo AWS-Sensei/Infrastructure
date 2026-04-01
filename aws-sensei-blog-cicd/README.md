@@ -8,6 +8,7 @@ This CodePipeline deploys for the AWS Sensei Blog the **SAM infrastructure** and
 
 ## 📁 Project Structure
 
+```text
     .
     ├── build                     
     │   └── codebuild.yaml          # CodeBuild project for Hugo site
@@ -17,7 +18,8 @@ This CodePipeline deploys for the AWS Sensei Blog the **SAM infrastructure** and
     ├── pipeline                     
     │   └── pipeline.yaml           # CodePipeline definition
     ├── master.yaml                 # Main SAM/CloudFormation entrypoint
-    └── README.md                   # You're reading this    
+    └── README.md                   # You're reading this   
+```
 
 ------------------------------------------------------------------------
 

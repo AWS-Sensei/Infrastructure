@@ -8,6 +8,7 @@ This CodePipeline deploys for the AWS Sensei Flashcard App the **SAM infrastruct
 
 ## 📁 Project Structure
 
+```text
     .
     ├── build                     
     │   └── codebuild.yaml          # CodeBuild project for Lambda
@@ -17,7 +18,8 @@ This CodePipeline deploys for the AWS Sensei Flashcard App the **SAM infrastruct
     ├── pipeline                     
     │   └── pipeline.yaml           # CodePipeline definition
     ├── master.yaml                 # Main SAM/CloudFormation entrypoint
-    └── README.md                   # You're reading this    
+    └── README.md                   # You're reading this   
+```
 
 ------------------------------------------------------------------------
 
