@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: AWS-Sensei Frontend Pipeline (Source → BuildDeployHugo) — triggers on frontend/**
+Description: AWS-Sensei Infra Pipeline (Source → ManualApproval → SAM Deploy) — triggers on infra/**
 
 Parameters:
   ArtifactBucketName:
@@ -10,9 +10,9 @@ Parameters:
     Type: String
     Description: IAM role ARN for CodePipeline
 
-  HugoBuildProjectName:
+  CloudFormationExecutionRoleArn:
     Type: String
-    Description: CodeBuild project name for Hugo build
+    Description: IAM role ARN used by CloudFormation during SAM deploy
 
   GitHubOwner:
     Type: String
@@ -29,7 +29,7 @@ Parameters:
 
 Resources:
 
-  FrontendPipeline:
+  InfraPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       PipelineType: V2
@@ -46,7 +46,7 @@ Resources:
             Push:
               - FilePaths:
                   Includes:
-                    - frontend/**
+                    - infra/**
       Stages:
         # ----------------------------------------------------------
         # SOURCE STAGE
@@ -67,17 +67,32 @@ Resources:
                 BranchName: !Ref GitHubBranch
                 DetectChanges: false
         # ----------------------------------------------------------
-        # HUGO BUILD & DEPLOY
+        # MANUAL APPROVAL
         # ----------------------------------------------------------
-        - Name: BuildDeployHugo
+        - Name: ManualApproval
           Actions:
-            - Name: Hugo_Build
+            - Name: Approve_Infra_Deploy
               ActionTypeId:
-                Category: Build
+                Category: Approval
                 Owner: AWS
-                Provider: CodeBuild
+                Provider: Manual
+                Version: "1"
+        # ----------------------------------------------------------
+        # INFRASTRUCTURE DEPLOY (SAM)
+        # ----------------------------------------------------------
+        - Name: InfraDeploy
+          Actions:
+            - Name: SAM_Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
                 Version: "1"
               InputArtifacts:
                 - Name: SourceOutput
               Configuration:
-                ProjectName: !Ref HugoBuildProjectName
+                ActionMode: CREATE_UPDATE
+                StackName: AWS-Sensei-Blog
+                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+                TemplatePath: SourceOutput::infra/infrastructure.yaml
+                RoleArn: !Ref CloudFormationExecutionRoleArn

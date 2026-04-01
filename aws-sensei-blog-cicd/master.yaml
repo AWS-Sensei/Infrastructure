@@ -15,7 +15,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: foundation/artifacts.yaml
-      
+
   # --------------------------
   # Build Layer
   # --------------------------
@@ -25,11 +25,11 @@ Resources:
       TemplateURL: build/codebuild.yaml
       Parameters:
         CodeBuildRoleArn: !GetAtt FoundationRoles.Outputs.CodeBuildRoleArn
-        
+
   # --------------------------
   # Pipeline Layer
   # --------------------------
-  CICDPipeline:
+  FrontendPipeline:
     Type: AWS::CloudFormation::Stack
     DependsOn:
       - HugoBuildProject
@@ -37,6 +37,14 @@ Resources:
       TemplateURL: pipeline/pipeline.yaml
       Parameters:
         CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
+        ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
+        HugoBuildProjectName: !GetAtt HugoBuildProject.Outputs.HugoBuildProjectName
+
+  InfraPipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: pipeline/infra-pipeline.yaml
+      Parameters:
+        CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
         CloudFormationExecutionRoleArn: !GetAtt FoundationRoles.Outputs.CloudFormationExecutionRoleArn
         ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
-        HugoBuildProjectName: !GetAtt HugoBuildProject.Outputs.HugoBuildProjectName     

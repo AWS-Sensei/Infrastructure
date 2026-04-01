@@ -20,8 +20,12 @@ Resources:
         Image: aws/codebuild/standard:7.0
         Type: LINUX_CONTAINER
         EnvironmentVariables:
-          - Name: BUILD_ENV
-            Value: production
+          - Name: WEBSITE_BUCKET
+            Type: PARAMETER_STORE
+            Value: /aws-sensei/blog/bucket-name
+          - Name: CLOUDFRONT_DISTRIBUTION_ID
+            Type: PARAMETER_STORE
+            Value: /aws-sensei/blog/cloudfront-distribution-id
       Source:
         Type: CODEPIPELINE
         BuildSpec: frontend/buildspec.yml

@@ -70,7 +70,14 @@ Resources:
               - Effect: Allow
                 Action:
                   - cloudfront:CreateInvalidation
-                Resource: "*"    
+                Resource: "*"
+
+              # SSM Parameter Store read for bucket name and distribution ID
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/aws-sensei/blog/*"
               
               # Logs
               - Effect: Allow
