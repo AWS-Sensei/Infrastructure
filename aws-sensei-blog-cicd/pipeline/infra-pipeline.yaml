@@ -43,6 +43,7 @@ Resources:
       Triggers:
         - ProviderType: CodeStarSourceConnection
           GitConfiguration:
+            SourceActionName: GitHub_Source
             Push:
               - FilePaths:
                   Includes:
@@ -93,6 +94,6 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 StackName: AWS-Sensei-Blog
-                Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+                Capabilities: CAPABILITY_IAM
                 TemplatePath: SourceOutput::infra/infrastructure.yaml
                 RoleArn: !Ref CloudFormationExecutionRoleArn
