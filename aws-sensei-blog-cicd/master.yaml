@@ -26,6 +26,15 @@ Resources:
       Parameters:
         CodeBuildRoleArn: !GetAtt FoundationRoles.Outputs.CodeBuildRoleArn
 
+  SamBuildProject:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: build/sam-codebuild.yaml
+      Parameters:
+        CodeBuildRoleArn: !GetAtt FoundationRoles.Outputs.CodeBuildRoleArn
+        CloudFormationExecutionRoleArn: !GetAtt FoundationRoles.Outputs.CloudFormationExecutionRoleArn
+        ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
+
   # --------------------------
   # Pipeline Layer
   # --------------------------
@@ -48,3 +57,14 @@ Resources:
         CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
         CloudFormationExecutionRoleArn: !GetAtt FoundationRoles.Outputs.CloudFormationExecutionRoleArn
         ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
+
+  ApisPipeline:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - SamBuildProject
+    Properties:
+      TemplateURL: pipeline/apis-pipeline.yaml
+      Parameters:
+        CodePipelineRoleArn: !GetAtt FoundationRoles.Outputs.CodePipelineRoleArn
+        ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
+        SamBuildProjectName: !GetAtt SamBuildProject.Outputs.SamBuildProjectName

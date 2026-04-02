@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS-Sensei APIs Pipeline (Source → SAM Deploy) — triggers on apis/**
+
+Parameters:
+  ArtifactBucketName:
+    Type: String
+    Description: S3 bucket used for CodePipeline artifacts
+
+  CodePipelineRoleArn:
+    Type: String
+    Description: IAM role ARN for CodePipeline
+
+  SamBuildProjectName:
+    Type: String
+    Description: CodeBuild project name for SAM deployments
+
+  GitHubOwner:
+    Type: String
+    Default: AWS-Sensei
+
+  GitHubRepo:
+    Type: String
+    Default: Blog
+
+  GitHubBranch:
+    Type: String
+    Default: main
+
+
+Resources:
+
+  ApisPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      PipelineType: V2
+      RoleArn: !Ref CodePipelineRoleArn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucketName
+        EncryptionKey:
+          Type: KMS
+          Id: alias/aws/s3
+      Triggers:
+        - ProviderType: CodeStarSourceConnection
+          GitConfiguration:
+            SourceActionName: GitHub_Source
+            Push:
+              - FilePaths:
+                  Includes:
+                    - apis/**
+      Stages:
+        # ----------------------------------------------------------
+        # SOURCE STAGE
+        # ----------------------------------------------------------
+        - Name: Source
+          Actions:
+            - Name: GitHub_Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: "1"
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ConnectionArn: "arn:aws:codeconnections:eu-central-1:804711834430:connection/fb8bbf59-fe32-4dd1-8a5b-a1d2642a5fb9"
+                FullRepositoryId: !Sub "${GitHubOwner}/${GitHubRepo}"
+                BranchName: !Ref GitHubBranch
+                DetectChanges: false
+        # ----------------------------------------------------------
+        # SAM DEPLOY
+        # ----------------------------------------------------------
+        - Name: DeployAPIs
+          Actions:
+            - Name: SAM_Deploy
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              InputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                ProjectName: !Ref SamBuildProjectName
