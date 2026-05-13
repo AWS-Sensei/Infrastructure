@@ -72,12 +72,12 @@ Resources:
                   - cloudfront:CreateInvalidation
                 Resource: "*"
 
-              # SSM Parameter Store read for bucket name and distribution ID
+              # SSM Parameter Store read for all sensei parameters
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
                   - ssm:GetParameters
-                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sensei/blog/*"
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sensei/*"
 
               # SAM deploy — orchestrate CloudFormation stacks
               - Effect: Allow
@@ -138,6 +138,9 @@ Resources:
                   - route53:*
                   - ssm:*
                   - events:*
+                  - firehose:*
+                  - glue:*
+                  - athena:*
                 Resource: "*"
                   
 # -----------------------------------------------------
