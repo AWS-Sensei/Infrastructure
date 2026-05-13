@@ -10,12 +10,26 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: foundation/roles.yaml
+      Tags:
+        - Key: Project
+          Value: aws-sensei
+        - Key: Service
+          Value: flashcards
+        - Key: Component
+          Value: cicd
 
   FoundationArtifacts:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: foundation/artifacts.yaml
-      
+      Tags:
+        - Key: Project
+          Value: aws-sensei
+        - Key: Service
+          Value: flashcards
+        - Key: Component
+          Value: cicd
+
   # --------------------------
   # Build Layer
   # --------------------------
@@ -25,7 +39,14 @@ Resources:
       TemplateURL: build/codebuild.yaml
       Parameters:
         CodeBuildRoleArn: !GetAtt FoundationRoles.Outputs.CodeBuildRoleArn
-      
+      Tags:
+        - Key: Project
+          Value: aws-sensei
+        - Key: Service
+          Value: flashcards
+        - Key: Component
+          Value: cicd
+
   # --------------------------
   # Pipeline Layer
   # --------------------------
@@ -39,3 +60,10 @@ Resources:
         ArtifactBucketName: !GetAtt FoundationArtifacts.Outputs.ArtifactBucketName
         PackageBuildProjectName: !GetAtt PackageBuildProject.Outputs.PackageBuildProjectName
         WebAppBuildProjectName: !GetAtt PackageBuildProject.Outputs.WebAppBuildProjectName
+      Tags:
+        - Key: Project
+          Value: aws-sensei
+        - Key: Service
+          Value: flashcards
+        - Key: Component
+          Value: cicd
