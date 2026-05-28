@@ -138,6 +138,7 @@ Resources:
                   - route53:*
                   - ssm:*
                   - sns:*
+                  - sqs:*
                   - events:*
                   - firehose:*
                   - glue:*
