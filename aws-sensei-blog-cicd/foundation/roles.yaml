@@ -79,6 +79,12 @@ Resources:
                   - ssm:GetParameters
                 Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sensei/*"
 
+              # SSM Parameter Store write for deploy-hash tracking (change detection)
+              - Effect: Allow
+                Action:
+                  - ssm:PutParameter
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sensei/deploy-hash/*"
+
               # SAM deploy — orchestrate CloudFormation stacks
               - Effect: Allow
                 Action:
